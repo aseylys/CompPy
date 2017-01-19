@@ -1,0 +1,76 @@
+//An exmple of input and output file.
+//Any number of stages could be added in any order
+//Each stage just needs a 'Stage', 'Rotor', and 'Stator' section
+
+{
+    "Stage 1": {
+        "Rotor": {
+            "Blade Clearance": 0,
+            "Blade Thickness (Rotor)": 16.0,
+            "Hub Diameter": 30.0,
+            "Hub Length": 8.0,
+            "Num of Blade (Rotor)": 15,
+            "Root Chord (Rotor)": 9.43,
+            "Rotor Diameter": 45.27,
+            "Tip Chord (Rotor)": 6.44,
+            "X Twist (Rotor)": 50.0,
+            "Y Twist (Rotor)": 0
+        },
+        "Stage": {
+            "Flow (Phi)": 0.8,
+            "Loading (Psi)": 0.442,
+            "Mean Line Radius": 18.82,
+            "RPM": 30000,
+            "Reaction (R)": 0.4
+        },
+        "Stator": {
+            "Blade Thickness (Stator)": 16.0,
+            "Duct ID": 45.27,
+            "Duct Length": 6.0,
+            "Duct Thickness": 2.0,
+            "Mount Can Dia": 30.0,
+            "Mount Can Length": 6.0,
+            "Mount Can Loc": 0,
+            "Num of Blade (Stator)": 13,
+            "Root Chord (Stator)": 7.64,
+            "Tip Chord (Stator)": 5.58,
+            "X Twist (Stator)": 50.0,
+            "Y Twist (Stator)": 0
+        }
+    },
+    "Stage 2": {
+        "Rotor": {
+            "Blade Clearance": 0,
+            "Blade Thickness (Rotor)": 16.0,
+            "Hub Diameter": 30.0,
+            "Hub Length": 20.0,
+            "Num of Blade (Rotor)": 24,
+            "Root Chord (Rotor)": 20.0,
+            "Rotor Diameter": 60.0,
+            "Tip Chord (Rotor)": 10.88,
+            "X Twist (Rotor)": 50.0,
+            "Y Twist (Rotor)": 0
+        },
+        "Stage": {
+            "Flow (Phi)": 0.691,
+            "Loading (Psi)": 0.482,
+            "Mean Line Radius": 22.5,
+            "RPM": 30000,
+            "Reaction (R)": 0.4
+        },
+        "Stator": {
+            "Blade Thickness (Stator)": 16.0,
+            "Duct ID": 60.0,
+            "Duct Length": 20.0,
+            "Duct Thickness": 2.0,
+            "Mount Can Dia": 30.0,
+            "Mount Can Length": 20.0,
+            "Mount Can Loc": 0,
+            "Num of Blade (Stator)": 13,
+            "Root Chord (Stator)": 20.0,
+            "Tip Chord (Stator)": 10.88,
+            "X Twist (Stator)": 50.0,
+            "Y Twist (Stator)": 0
+        }
+    }
+}
