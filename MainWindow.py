@@ -11,7 +11,7 @@ except ImportError:
 
 import BladePlot
 import RenderWindow
-from File_Read import *
+from FileOps import *
 
 
 class Ui_MainWindow(object):
@@ -28,6 +28,7 @@ class Ui_MainWindow(object):
         self.statorValidators = {"Duct ID" : None, "Duct Length" : None, "Duct Thickness" : None, "Num of Blade (Stator)" : None, "Mount Can Length" : None, "Mount Can Dia" : None, "Mount Can Loc" : None, "Blade Thickness (Stator)" : None, "Root Chord (Stator)" : None, "Tip Chord (Stator)" : None, "X Twist (Stator)" : None, "Y Twist (Stator)" : None}
         
         self.exportObj = None
+        self.clicked = None
         self.fileOpen = False
         self.failed = []
         self.centralwidget = QWidget(MainWindow)
@@ -58,7 +59,7 @@ class Ui_MainWindow(object):
         self.YT_Line.setAlignment(Qt.AlignCenter)
         self.YT_Line.setObjectName("Y Twist (Rotor)")
         self.YT_Line.setValidator(QDoubleValidator(0.0, 100.0, 3, self.YT_Line))
-        self.YT_Line.textChanged.connect(self.checkState)
+        self.YT_Line.textChanged.connect(self.CheckState)
         self.YT_Line.textChanged.emit(self.YT_Line.text())
         
         self.gridLayout_2.addWidget(self.YT_Line, 11, 3, 1, 1)
@@ -115,7 +116,7 @@ class Ui_MainWindow(object):
         self.XT_Line.setAlignment(Qt.AlignCenter)
         self.XT_Line.setObjectName("X Twist (Rotor)")
         self.XT_Line.setValidator(QDoubleValidator(0.0, 100.0, 3, self.XT_Line))
-        self.XT_Line.textChanged.connect(self.checkState)
+        self.XT_Line.textChanged.connect(self.CheckState)
         self.XT_Line.textChanged.emit(self.XT_Line.text())
         
         self.gridLayout_2.addWidget(self.XT_Line, 11, 1, 1, 1)
@@ -124,7 +125,7 @@ class Ui_MainWindow(object):
         self.TC_Line.setAlignment(Qt.AlignCenter)
         self.TC_Line.setObjectName("Tip Chord (Rotor)")
         self.TC_Line.setValidator(QDoubleValidator(0.0, 1000.0, 3, self.TC_Line))
-        self.TC_Line.textChanged.connect(self.checkState)
+        self.TC_Line.textChanged.connect(self.CheckState)
         self.TC_Line.textChanged.emit(self.TC_Line.text())
         
         self.gridLayout_2.addWidget(self.TC_Line, 7, 3, 1, 1)
@@ -133,7 +134,7 @@ class Ui_MainWindow(object):
         self.RD_Line.setAlignment(Qt.AlignCenter)
         self.RD_Line.setObjectName("Rotor Diameter")
         self.RD_Line.setValidator(QDoubleValidator(0.0, 1000.0, 3, self.RD_Line))
-        self.RD_Line.textChanged.connect(self.checkState)
+        self.RD_Line.textChanged.connect(self.CheckState)
         self.RD_Line.textChanged.emit(self.RD_Line.text())
         
         self.gridLayout_2.addWidget(self.RD_Line, 2, 1, 1, 1)
@@ -148,7 +149,7 @@ class Ui_MainWindow(object):
         self.RC_Line.setAlignment(Qt.AlignCenter)
         self.RC_Line.setObjectName("Root Chord (Rotor)")
         self.RC_Line.setValidator(QDoubleValidator(0.0, 1000.0, 3, self.RC_Line))
-        self.RC_Line.textChanged.connect(self.checkState)
+        self.RC_Line.textChanged.connect(self.CheckState)
         self.RC_Line.textChanged.emit(self.RC_Line.text())
         
         self.gridLayout_2.addWidget(self.RC_Line, 7, 1, 1, 1)
@@ -157,7 +158,7 @@ class Ui_MainWindow(object):
         self.BT_Line.setAlignment(Qt.AlignCenter)
         self.BT_Line.setObjectName("Blade Thickness (Rotor)")
         self.BT_Line.setValidator(QDoubleValidator(0.0, 1000.0, 3, self.BT_Line))
-        self.BT_Line.textChanged.connect(self.checkState)
+        self.BT_Line.textChanged.connect(self.CheckState)
         self.BT_Line.textChanged.emit(self.BT_Line.text())
         
         self.gridLayout_2.addWidget(self.BT_Line, 9, 1, 1, 1)
@@ -172,7 +173,7 @@ class Ui_MainWindow(object):
         self.HD_Line.setAlignment(Qt.AlignCenter)
         self.HD_Line.setObjectName("Hub Diameter")
         self.HD_Line.setValidator(QDoubleValidator(0.0, 10000.0, 3, self.HD_Line))
-        self.HD_Line.textChanged.connect(self.checkState)
+        self.HD_Line.textChanged.connect(self.CheckState)
         self.HD_Line.textChanged.emit(self.HD_Line.text())
         
         self.gridLayout_2.addWidget(self.HD_Line, 2, 3, 1, 1)
@@ -181,7 +182,7 @@ class Ui_MainWindow(object):
         self.HL_Line.setAlignment(Qt.AlignCenter)
         self.HL_Line.setObjectName("Hub Length")
         self.HL_Line.setValidator(QDoubleValidator(0.0, 1000.0, 3, self.HL_Line))
-        self.HL_Line.textChanged.connect(self.checkState)
+        self.HL_Line.textChanged.connect(self.CheckState)
         self.HL_Line.textChanged.emit(self.HL_Line.text())
         
         self.gridLayout_2.addWidget(self.HL_Line, 4, 1, 1, 1)
@@ -190,7 +191,7 @@ class Ui_MainWindow(object):
         self.BC_Line.setAlignment(Qt.AlignCenter)
         self.BC_Line.setObjectName("Blade Clearance")
         self.BC_Line.setValidator(QDoubleValidator(0.0, 10.0, 3, self.BC_Line))
-        self.BC_Line.textChanged.connect(self.checkState)
+        self.BC_Line.textChanged.connect(self.CheckState)
         self.BC_Line.textChanged.emit(self.BC_Line.text())
         
         self.gridLayout_2.addWidget(self.BC_Line, 9, 3, 1, 1)
@@ -205,7 +206,7 @@ class Ui_MainWindow(object):
         self.NB_Line.setAlignment(Qt.AlignCenter)
         self.NB_Line.setObjectName("Num of Blade (Rotor)")
         self.NB_Line.setValidator(QIntValidator(1, 1000,  self.NB_Line))
-        self.NB_Line.textChanged.connect(self.checkState)
+        self.NB_Line.textChanged.connect(self.CheckState)
         self.NB_Line.textChanged.emit(self.NB_Line.text())
         
         self.gridLayout_2.addWidget(self.NB_Line, 4, 3, 1, 1)
@@ -264,7 +265,7 @@ class Ui_MainWindow(object):
         self.R_Line.setAlignment(Qt.AlignCenter)
         self.R_Line.setObjectName("Reaction (R)")
         self.R_Line.setValidator(QDoubleValidator(0.0, 1.0, 3, self.R_Line))
-        self.R_Line.textChanged.connect(self.checkState)
+        self.R_Line.textChanged.connect(self.CheckState)
         self.R_Line.textChanged.emit(self.R_Line.text())
         
         self.formLayout.setWidget(2, QFormLayout.FieldRole, self.R_Line)
@@ -280,7 +281,7 @@ class Ui_MainWindow(object):
         self.PSI_Line.setAlignment(Qt.AlignCenter)
         self.PSI_Line.setObjectName("Loading (Psi)")
         self.PSI_Line.setValidator(QDoubleValidator(0.0, 1.0, 3, self.PSI_Line))
-        self.PSI_Line.textChanged.connect(self.checkState)
+        self.PSI_Line.textChanged.connect(self.CheckState)
         self.PSI_Line.textChanged.emit(self.PSI_Line.text())
         
         self.formLayout.setWidget(3, QFormLayout.FieldRole, self.PSI_Line)
@@ -296,7 +297,7 @@ class Ui_MainWindow(object):
         self.PHI_Line.setAlignment(Qt.AlignCenter)
         self.PHI_Line.setObjectName("Flow (Phi)")
         self.PHI_Line.setValidator(QDoubleValidator(0.0, 1.0, 3, self.PHI_Line))
-        self.PHI_Line.textChanged.connect(self.checkState)
+        self.PHI_Line.textChanged.connect(self.CheckState)
         self.PHI_Line.textChanged.emit(self.PHI_Line.text())
         
         self.formLayout.setWidget(4, QFormLayout.FieldRole, self.PHI_Line)
@@ -319,7 +320,7 @@ class Ui_MainWindow(object):
         self.MLR_Line.setAlignment(Qt.AlignCenter)
         self.MLR_Line.setObjectName("Mean Line Radius")
         self.MLR_Line.setValidator(QDoubleValidator(0.0, 1000.0, 3, self.MLR_Line))
-        self.MLR_Line.textChanged.connect(self.checkState)
+        self.MLR_Line.textChanged.connect(self.CheckState)
         self.MLR_Line.textChanged.emit(self.MLR_Line.text())
         
         self.formLayout.setWidget(5, QFormLayout.FieldRole, self.MLR_Line)
@@ -335,7 +336,7 @@ class Ui_MainWindow(object):
         self.RPM_Line.setAlignment(Qt.AlignCenter)
         self.RPM_Line.setObjectName("RPM")
         self.RPM_Line.setValidator(QIntValidator(1, 100000,  self.RPM_Line))
-        self.RPM_Line.textChanged.connect(self.checkState)
+        self.RPM_Line.textChanged.connect(self.CheckState)
         self.RPM_Line.textChanged.emit(self.RPM_Line.text())
         
         self.formLayout.setWidget(6, QFormLayout.FieldRole, self.RPM_Line)
@@ -358,14 +359,14 @@ class Ui_MainWindow(object):
         self.listWidget.setTextElideMode(Qt.ElideMiddle)
         self.listWidget.setObjectName("listWidget")
         
-        #if self.fileOpen:
-        self.listWidget.itemClicked.connect(self.listClicked)
+        
+        self.listWidget.itemClicked.connect(self.ListClicked)
         
         self.gridLayout_4.addWidget(self.listWidget, 0, 0, 1, 1)
         
         self.renderExport = QPushButton(self.L_Frame)
         self.renderExport.setObjectName("renderExport")
-        self.renderExport.clicked.connect(self.export)
+        self.renderExport.clicked.connect(self.Export)
         
         self.gridLayout_4.addWidget(self.renderExport, 3, 1, 1, 1)
         
@@ -379,12 +380,12 @@ class Ui_MainWindow(object):
         
         self.removeButton = QPushButton(self.frame)
         self.removeButton.setObjectName("removeButton")
-        self.removeButton.clicked.connect(self.removeStage)
+        self.removeButton.clicked.connect(self.RemoveStage)
         self.gridLayout_5.addWidget(self.removeButton, 0, 1, 1, 1)
         
         self.addButton = QPushButton(self.frame)
         self.addButton.setObjectName("addButton")
-        self.addButton.clicked.connect(self.addStage)
+        self.addButton.clicked.connect(self.AddStage)
         self.gridLayout_5.addWidget(self.addButton, 0, 0, 1, 1)
         
         spacerItem = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
@@ -394,11 +395,11 @@ class Ui_MainWindow(object):
         
         self.profileButton = QPushButton(self.L_Frame)
         self.profileButton.setObjectName("profileButton")
-        self.profileButton.clicked.connect(self.plotProfile)
+        self.profileButton.clicked.connect(self.PlotProfile)
         
         self.renderButton = QPushButton(self.L_Frame)
         self.renderButton.setObjectName("renderButton")
-        self.renderButton.clicked.connect(self.render)
+        self.renderButton.clicked.connect(self.Render)
         
        
         self.gridLayout_4.addWidget(self.profileButton, 1, 1, 1, 1)
@@ -443,7 +444,7 @@ class Ui_MainWindow(object):
         self.DI_Line.setAlignment(Qt.AlignCenter)
         self.DI_Line.setObjectName("Duct ID")
         self.DI_Line.setValidator(QDoubleValidator(0.0, 1000.0, 3, self.DI_Line))
-        self.DI_Line.textChanged.connect(self.checkState)
+        self.DI_Line.textChanged.connect(self.CheckState)
         self.DI_Line.textChanged.emit(self.DI_Line.text())
         
         self.gridLayout_3.addWidget(self.DI_Line, 2, 3, 1, 1)
@@ -464,7 +465,7 @@ class Ui_MainWindow(object):
         self.DL_Line.setAlignment(Qt.AlignCenter)
         self.DL_Line.setObjectName("Duct Length")
         self.DL_Line.setValidator(QDoubleValidator(0.0, 1000.0, 3, self.DL_Line))
-        self.DL_Line.textChanged.connect(self.checkState)
+        self.DL_Line.textChanged.connect(self.CheckState)
         self.DL_Line.textChanged.emit(self.DL_Line.text())
         
         self.gridLayout_3.addWidget(self.DL_Line, 2, 1, 1, 1)
@@ -473,7 +474,7 @@ class Ui_MainWindow(object):
         self.DT_Line.setAlignment(Qt.AlignCenter)
         self.DT_Line.setObjectName("Duct Thickness")
         self.DT_Line.setValidator(QDoubleValidator(0.0, 100.0, 3, self.DT_Line))
-        self.DT_Line.textChanged.connect(self.checkState)
+        self.DT_Line.textChanged.connect(self.CheckState)
         self.DT_Line.textChanged.emit(self.DT_Line.text())
         
         self.gridLayout_3.addWidget(self.DT_Line, 3, 1, 1, 1)
@@ -488,7 +489,7 @@ class Ui_MainWindow(object):
         self.NB_Line_2.setAlignment(Qt.AlignCenter)
         self.NB_Line_2.setObjectName("Num of Blade (Stator)")
         self.NB_Line_2.setValidator(QIntValidator(1, 1000,  self.NB_Line_2))
-        self.NB_Line_2.textChanged.connect(self.checkState)
+        self.NB_Line_2.textChanged.connect(self.CheckState)
         self.NB_Line_2.textChanged.emit(self.NB_Line_2.text())
         
         self.gridLayout_3.addWidget(self.NB_Line_2, 3, 3, 1, 1)
@@ -503,7 +504,7 @@ class Ui_MainWindow(object):
         self.CL_Line.setAlignment(Qt.AlignCenter)
         self.CL_Line.setObjectName("Mount Can Length")
         self.CL_Line.setValidator(QDoubleValidator(0.0, 1000.0, 3, self.CL_Line))
-        self.CL_Line.textChanged.connect(self.checkState)
+        self.CL_Line.textChanged.connect(self.CheckState)
         self.CL_Line.textChanged.emit(self.CL_Line.text())
         
         self.gridLayout_3.addWidget(self.CL_Line, 4, 1, 1, 1)
@@ -518,7 +519,7 @@ class Ui_MainWindow(object):
         self.CID_Line.setAlignment(Qt.AlignCenter)
         self.CID_Line.setObjectName("Mount Can Dia")
         self.CID_Line.setValidator(QDoubleValidator(0.0, 1000.0, 3, self.CID_Line))
-        self.CID_Line.textChanged.connect(self.checkState)
+        self.CID_Line.textChanged.connect(self.CheckState)
         self.CID_Line.textChanged.emit(self.CID_Line.text())
         
         self.gridLayout_3.addWidget(self.CID_Line, 4, 3, 1, 1)
@@ -533,7 +534,7 @@ class Ui_MainWindow(object):
         self.XL_Line.setAlignment(Qt.AlignCenter)
         self.XL_Line.setObjectName("Mount Can Loc")
         self.XL_Line.setValidator(QDoubleValidator(0.0, 1000.0, 3, self.XL_Line))
-        self.XL_Line.textChanged.connect(self.checkState)
+        self.XL_Line.textChanged.connect(self.CheckState)
         self.XL_Line.textChanged.emit(self.XL_Line.text())
         
         self.gridLayout_3.addWidget(self.XL_Line, 5, 1, 1, 1)
@@ -548,7 +549,7 @@ class Ui_MainWindow(object):
         self.BT_Line_2.setAlignment(Qt.AlignCenter)
         self.BT_Line_2.setObjectName("Blade Thickness (Stator)")
         self.BT_Line_2.setValidator(QDoubleValidator(0.0, 100.0, 3, self.BT_Line_2))
-        self.BT_Line_2.textChanged.connect(self.checkState)
+        self.BT_Line_2.textChanged.connect(self.CheckState)
         self.BT_Line_2.textChanged.emit(self.BT_Line_2.text())
         
         self.gridLayout_3.addWidget(self.BT_Line_2, 5, 3, 1, 1)
@@ -563,7 +564,7 @@ class Ui_MainWindow(object):
         self.RC_Line_2.setAlignment(Qt.AlignCenter)
         self.RC_Line_2.setObjectName("Root Chord (Stator)")
         self.RC_Line_2.setValidator(QDoubleValidator(0.0, 1000.0, 3, self.RC_Line_2))
-        self.RC_Line_2.textChanged.connect(self.checkState)
+        self.RC_Line_2.textChanged.connect(self.CheckState)
         self.RC_Line_2.textChanged.emit(self.RC_Line_2.text())
         
         self.gridLayout_3.addWidget(self.RC_Line_2, 6, 1, 1, 1)
@@ -578,7 +579,7 @@ class Ui_MainWindow(object):
         self.TC_Line_2.setAlignment(Qt.AlignCenter)
         self.TC_Line_2.setObjectName("Tip Chord (Stator)")
         self.TC_Line_2.setValidator(QDoubleValidator(0.0, 1000.0, 3, self.TC_Line_2))
-        self.TC_Line_2.textChanged.connect(self.checkState)
+        self.TC_Line_2.textChanged.connect(self.CheckState)
         self.TC_Line_2.textChanged.emit(self.TC_Line_2.text())
         
         self.gridLayout_3.addWidget(self.TC_Line_2, 6, 3, 1, 1)
@@ -593,7 +594,7 @@ class Ui_MainWindow(object):
         self.XT_Line_2.setAlignment(Qt.AlignCenter)
         self.XT_Line_2.setObjectName("X Twist (Stator)")
         self.XT_Line_2.setValidator(QDoubleValidator(0.0, 1000.0, 3, self.XT_Line_2))
-        self.XT_Line_2.textChanged.connect(self.checkState)
+        self.XT_Line_2.textChanged.connect(self.CheckState)
         self.XT_Line_2.textChanged.emit(self.XT_Line_2.text())
         
         self.gridLayout_3.addWidget(self.XT_Line_2, 7, 1, 1, 1)
@@ -608,7 +609,7 @@ class Ui_MainWindow(object):
         self.YT_Line_2.setAlignment(Qt.AlignCenter)
         self.YT_Line_2.setObjectName("Y Twist (Stator)")
         self.YT_Line_2.setValidator(QDoubleValidator(0.0, 1000.0, 3, self.YT_Line_2))
-        self.YT_Line_2.textChanged.connect(self.checkState)
+        self.YT_Line_2.textChanged.connect(self.CheckState)
         self.YT_Line_2.textChanged.emit(self.YT_Line_2.text())
         
         self.gridLayout_3.addWidget(self.YT_Line_2, 7, 3, 1, 1)
@@ -641,13 +642,13 @@ class Ui_MainWindow(object):
         self.actionOpen.setObjectName("actionOpen")
         self.actionOpen.setShortcut("Ctrl+O")
         self.actionOpen.setStatusTip("Open File")
-        self.actionOpen.triggered.connect(self.openFile)
+        self.actionOpen.triggered.connect(self.OpenFile)
         
         self.actionSave = QAction(MainWindow)
         self.actionSave.setObjectName("actionSave")
         self.actionSave.setShortcut("Ctrl+S")
         self.actionSave.setStatusTip("Save File")
-        self.actionSave.triggered.connect(self.saveFile)
+        self.actionSave.triggered.connect(self.SaveFile)
 
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
@@ -685,6 +686,15 @@ class Ui_MainWindow(object):
         QMetaObject.connectSlotsByName(MainWindow)
 
 
+    ################################
+    ##Function: retranslateUi
+    #Sets the text of all the labels
+    ##Inputs: 
+    #self: Ui_MainWindow
+    #MainWindow: MainWindow
+    ##Returns:
+    #none
+    ################################   
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle("CompPy - Compressor Design")
         self.YT_Label.setText("Center of Y Twist")
@@ -727,101 +737,144 @@ class Ui_MainWindow(object):
         self.actionOpen.setText("Open")
         self.actionSave.setText("Save")
         
-
-    def openFile(self):
+    ################################
+    ##Function: OpenFile
+    #Opens compressor profile from .json file
+    ##Inputs: 
+    #self: Ui_MainWindow
+    ##Returns:
+    #none
+    ################################   
+    def OpenFile(self):
+        #Open open file dialog window
         name = QFileDialog.getOpenFileName(MainWindow, "Open File",  None, 'Json files (*.json)')
+        
+        #Clear the list of anything
         self.listWidget.clear()
         try:
+            #Version stuff
+            if version == 5: name = name[0]
+            
+            #Set dictionaries with incoming vars
             self.commonVars, self.rotorVars, self.statorVars = map(list, zip(*list(StageOpen(name))))
-
-            self.stageList()
+            
+            #Add the stages
+            for i in range(1, len(self.commonVars) + 1):
+                self.listWidget.addItem("Stage {}".format(i))
             
         except EOFError: 
             print("Invalid File, Confirm File is Correct")
             
             
-    def saveFile(self):
+    ################################
+    ##Function: SaveFile
+    #Saves compressor profile to .json file
+    ##Inputs: 
+    #self: Ui_MainWindow
+    ##Returns:
+    #none
+    ################################       
+    def SaveFile(self):
+        #Open save file dialog window
         name = QFileDialog.getSaveFileName(MainWindow, "Save File", None, 'Json files (*.json)')
         
-        if version == 5:
-            if not name[0].lower().endswith('.json'):
-                name[0] += '.json'
-            StageSave(name[0], self.commonVars, self.rotorVars, self.statorVars)
-            
-        else:
-            if not name.lower().endswith('.json'):
-                name += '.json'
-            StageSave(name, self.commonVars, self.rotorVars, self.statorVars)
-            
+        #make sure the current stage is saved to the dictionaries
+        for dict in [self.commonVars[self.clicked], self.rotorVars[self.clicked], self.statorVars[self.clicked]]:
+            for item in dict:
+                text = MainWindow.findChild(QLineEdit, item).text()
+                if text:
+                    dict[item] = text
+        
+        #Version stuff
+        if version == 5: name = name[0]
+        
+        #Save dictionaries to .json file
+        if not name.lower().endswith('.json'):
+            name += '.json'
+        StageSave(name, self.commonVars, self.rotorVars, self.statorVars)
     
-    def stageList(self):
-        for i in range(1, len(self.commonVars) + 1):
-            self.listWidget.addItem("Stage {}".format(i))
-            
-            
-    def removeStage(self):
+    
+    ################################
+    ##Function: RemoveStage
+    #Removes selected stage from list and profiles
+    ##Inputs: 
+    #self: Ui_MainWindow
+    ##Returns:
+    #none
+    ################################   
+    def RemoveStage(self):
+        #Delete current item from list
         listItems=self.listWidget.selectedItems()
         del self.rotorVars[int(self.listWidget.currentItem().text()[-1]) -1]
         del self.commonVars[int(self.listWidget.currentItem().text()[-1]) -1]
         del self.statorVars[int(self.listWidget.currentItem().text()[-1]) -1]
+        
+        #Remove deleted item from dictionaries
         if not listItems: return        
         for item in listItems:
            self.listWidget.takeItem(self.listWidget.row(item))
-           
-           
-    def addStage(self):
+                     
+                     
+    ################################
+    ##Function: AddStage
+    #Adds next stage to list and profiles
+    ##Inputs: 
+    #self: Ui_MainWindow
+    ##Returns:
+    #none
+    ################################   
+    def AddStage(self):            
+        #Add stage list item
         self.listWidget.addItem("Stage {}".format(self.listWidget.count() + 1))
 
+        #Add new stage vars
         self.rotorVars.append({"Y Twist (Rotor)" : "", "X Twist (Rotor)" : "", "Tip Chord (Rotor)" : "", "Rotor Diameter" : "", "Root Chord (Rotor)" : "", "Blade Thickness (Rotor)" : "", "Hub Diameter" : "", "Hub Length" : "", "Blade Clearance" : "", "Num of Blade (Rotor)" : ""})
         self.statorVars.append({"Duct ID" : "", "Duct Length" : "", "Duct Thickness" : "", "Num of Blade (Stator)" : "", "Mount Can Length" : "", "Mount Can Dia" : "", "Mount Can Loc" : "", "Blade Thickness (Stator)" : "", "Root Chord (Stator)" : "", "Tip Chord (Stator)" : "", "X Twist (Stator)" : "", "Y Twist (Stator)" : ""})
         self.commonVars.append({"RPM" : "", "Loading (Psi)" : "", "Flow (Phi)" : "", "Reaction (R)" : "", "Mean Line Radius" : ""})
-            
-            
-    def directory(self):
-        file = str(QFileDialog.getExistingDirectory(MainWindow, "Select Directory"))
-        self.outputFolder.setText(file)
         
         
-    def plotProfile(self):
-        from RClickWin import RenderSel, ErrorWindow
+    ################################
+    ##Function: ListClicked
+    #Loads currently selected stage profile
+    #while saving the previously selected profile
+    ##Inputs: 
+    #self: Ui_MainWindow
+    #clicked: currently selected stage
+    ##Returns:
+    #none
+    ################################   
+    def ListClicked(self, clicked):
+        #Making sure there's no overlap
+        if (self.clicked and (self.clicked < self.listWidget.count())): pass
+        else: self.clicked = 0
         
-        #Delete Currently Occupating Widget
-        for i in reversed(range(self.R_FrameLayout.count())): self.R_FrameLayout.itemAt(i).widget().setParent(None)
+        #Set current value of qLineEdit to correspoinding dict value,
+        #of previously selected stage, if there is a value to change
+        for dict in [self.commonVars[self.clicked], self.rotorVars[self.clicked], self.statorVars[self.clicked]]:
+            for item in dict:
+                text = MainWindow.findChild(QLineEdit, item).text()
+                if text:
+                    dict[item] = text
+
+        #Set currently selected stage
+        self.clicked = int(clicked.text()[-1]) - 1
         
-        wind = RenderSel(MainWindow)
-        wind.show()
-        
-        if wind.exec_():
-            if wind.sel == 1: 
-                self.checkAllStates("R")
-                if not self.failed: 
-                    self.setExports("R")
-                    prof = BladePlot.NACA4Profile(MainWindow, self.commonExport, self.rotorExport, "Rotor")
-                    self.R_FrameLayout.addWidget(prof)
-                    prof.plotter()
-                    self.R_Frame.setLayout(self.R_FrameLayout)
-                    prof.close()
-                    
-                else: ErrorWindow(MainWindow, self.failed).show()
-                
-            elif wind.sel == 2: 
-                self.checkAllStates("S")
-                if not self.failed: 
-                    self.setExports("S")
-                    prof = BladePlot.NACA4Profile(MainWindow, self.commonExport, self.statorExport, "Stator")
-                    self.R_FrameLayout.addWidget(prof)
-                    prof.plotter()
-                    self.R_Frame.setLayout(self.R_FrameLayout)
-                    prof.close()
-                    
-                else: ErrorWindow(MainWindow, self.failed).show()
-            
-            else: pass
+        #Set each value in list of current stage to their corresponding qLineEdit
+        for dict in [self.commonVars, self.rotorVars, self.statorVars]:
+            for obj in dict[self.clicked]:
+                    MainWindow.findChild(QLineEdit, obj).setText(str(dict[self.clicked][obj]))
 
 
-    def export(self):
-        from stl import mesh
-        
+    ################################
+    ##Function: Export
+    #If object rendered, exports to .stl file
+    ##Inputs: 
+    #self: Ui_MainWindow
+    ##Returns:
+    #none
+    ################################   
+    def Export(self):       
+        #If object was previously generated
         if self.exportObj:
             name = QFileDialog.getSaveFileName(MainWindow, 'Save File', None, 'STL files (*.stl)')
             
@@ -835,15 +888,80 @@ class Ui_MainWindow(object):
                     name += '.stl'
                 self.exportObj.save(name)
                 
+        #If there was no rendered object, display error window
         else:
             box = QMessageBox(MainWindow)
             box.setText("Nothing to Export")
             box.setInformativeText("Generate STL Object")
             box.setWindowTitle("Export Error")
             box.exec_()
+                                
+    
+    ################################
+    ##Function: CheckState
+    #Determines validity of currently editing qLineEdit
+    #Green for acceptable
+    #Yellow / Red are unacceptable
+    ##Inputs: 
+    #self: Ui_MainWindow
+    ##Returns:
+    #none
+    ################################       
+    def CheckState(self):
+        sender = MainWindow.sender()
+        state = sender.validator().validate(sender.text(), 0)[0]
+        
+        #Check every line
+        for dict in [self.commonValidators, self.rotorValidators, self.statorValidators]:
+            if sender.objectName() in dict:
+                dict[sender.objectName()] = state
+            else: continue
             
+        #Set color of qLineEdit box
+        if state == QValidator.Acceptable:
+            color = "#009933" # green     
+        elif state == QValidator.Intermediate:
+            color = "#ffff00" # yellow            
+        else:
+            color = "#ff0000" # red
+            
+        sender.setStyleSheet("QLineEdit { background-color: %s }" % color)
+    
+        
+    ################################
+    ##Function: CheckAllStates
+    #If object to be rendered or plotted each
+    #qLineEdit object needs to be acceptably valid
+    ##Inputs: 
+    #self: Ui_MainWindow
+    #obj: "R" or "S"
+    ##Returns:
+    #none
+    ################################   
+    def CheckAllStates(self, obj):
+    
+        if obj == "R": to_check = [self.commonValidators, self.rotorValidators]
+        else: to_check = [self.commonValidators, self.statorValidators]
+        
+        #Check all values in validators dict
+        #If one was ont acceptable, append it to failure list
+        for dict in to_check:
+            if all(val == 2 for val in dict.values()): break
+            else:
+                for item in dict:
+                    if dict[item] != 2: self.failed.append(item)
+                    else: pass
 
-    def render(self):
+        
+    ################################
+    ##Function: PlotProfile
+    #Plots blade profile for selected object if all valid
+    ##Inputs: 
+    #self: Ui_MainWindow
+    ##Returns:
+    #none
+    ################################   
+    def PlotProfile(self):
         from RClickWin import RenderSel, ErrorWindow
         
         #Delete Currently Occupating Widget
@@ -854,92 +972,103 @@ class Ui_MainWindow(object):
         
         if wind.exec_():
             if wind.sel == 1: 
-                self.checkAllStates("R")
-                if not self.failed: 
-                    self.setExports("R")
-                    rend = RenderWindow.RenderWindow(MainWindow, self.commonExport, self.rotorExport, "R", self.wallCheck.isChecked())
-                    self.R_FrameLayout.addWidget(rend)
-                    self.R_Frame.setLayout(self.R_FrameLayout)
-                    self.exportObj = rend.returnObject()
-                    
-                else: ErrorWindow(MainWindow, self.failed).show()
+                self.CheckAllStates("R")
                 
-            elif wind.sel == 2: 
-                self.checkAllStates("S")
+                #If there was no failure
                 if not self.failed: 
-                    self.setExports("S")
-                    rend = RenderWindow.RenderWindow(MainWindow, self.commonExport, self.statorExport, "S")
+                    prof = BladePlot.NACA4Profile(MainWindow, self.commonVars[self.clicked], self.rotorVars[self.clicked], "R")
+                    self.R_FrameLayout.addWidget(prof)
+                    prof.plotter()
+                    self.R_Frame.setLayout(self.R_FrameLayout)
+                    prof.close()
+                    
+                #If there was a failure, show the failures
+                else: ErrorWindow(MainWindow, self.failed).show()
+                    
+            #If stator was picked
+            elif wind.sel == 2: 
+                self.CheckAllStates("S")
+                
+                #If there was no failure
+                if not self.failed: 
+                    prof = BladePlot.NACA4Profile(MainWindow, self.commongVars[self.clicked], self.statorVars[self.clicked], "S")
+                    self.R_FrameLayout.addWidget(prof)
+                    prof.plotter()
+                    self.R_Frame.setLayout(self.R_FrameLayout)
+                    prof.close()
+                
+                #If there was a failure, show the failures
+                else: ErrorWindow(MainWindow, self.failed).show()
+            
+            else: pass
+            
+        #Reset failed list
+        self.failed = []
+        
+
+    ################################
+    ##Function: Render
+    #3D renders selected object if all valid
+    ##Inputs: 
+    #self: Ui_MainWindow
+    ##Returns:
+    #none
+    ################################   
+    def Render(self):
+        from RClickWin import RenderSel, ErrorWindow
+        
+        #Delete Currently Occupating Widget
+        for i in reversed(range(self.R_FrameLayout.count())): self.R_FrameLayout.itemAt(i).widget().setParent(None)
+        
+        #Display selction window
+        wind = RenderSel(MainWindow)
+        wind.show()
+        
+        #Once window is closed
+        if wind.exec_():
+            #If rotor was picked
+            if wind.sel == 1: 
+                self.CheckAllStates("R")
+                
+                #If there was no failure
+                if not self.failed: 
+                    rend = RenderWindow.RenderWindow(MainWindow, self.commonVars[self.clicked], self.rotorVars[self.clicked], "R", self.wallCheck.isChecked())
                     self.R_FrameLayout.addWidget(rend)
                     self.R_Frame.setLayout(self.R_FrameLayout)
                     self.exportObj = rend.returnObject()
                     
+                #If there was a failure, show the failures
+                else: ErrorWindow(MainWindow, self.failed).show()
+            
+            #If stator was picked
+            elif wind.sel == 2: 
+                self.CheckAllStates("S")
+                
+                #If there was no failure
+                if not self.failed: 
+                    rend = RenderWindow.RenderWindow(MainWindow, self.commonVars[self.clicked], self.statorVars[self.clicked], "S")
+                    self.R_FrameLayout.addWidget(rend)
+                    self.R_Frame.setLayout(self.R_FrameLayout)
+                    self.exportObj = rend.returnObject()
+                
+                #If there was a failure, show the failures
                 else: ErrorWindow(MainWindow, self.failed).show()
             
             else: pass
   
+        #Reset failed list
         self.failed = []
-        
-        
-    def listClicked(self, clicked):   
-        for dict in [self.commonVars, self.rotorVars, self.statorVars]:
-            for obj in dict[int(clicked.text()[-1]) - 1]:
-                MainWindow.findChild(QLineEdit, obj).setText(str(dict[int(clicked.text()[-1]) - 1][obj]))
-
-        
-    def checkState(self):
-        sender = MainWindow.sender()
-        state = sender.validator().validate(sender.text(), 0)[0]
-        
-        for dict in [self.commonValidators, self.rotorValidators, self.statorValidators]:
-            if sender.objectName() in dict:
-                dict[sender.objectName()] = state
-            else: continue
-            
-        if state == QValidator.Acceptable:
-            color = "#009933" # green     
-        elif state == QValidator.Intermediate:
-            color = "#ffff00" # yellow            
-        else:
-            color = "#ff0000" # red
-            
-        sender.setStyleSheet("QLineEdit { background-color: %s }" % color)
-        
-
-    def setExports(self, obj):
-        #Export Parameters To Be Sent To Render
-        self.rotorExport = {"Y Twist (Rotor)" : None, "X Twist (Rotor)" : None, "Tip Chord (Rotor)" : None, "Rotor Diameter" : None, "Root Chord (Rotor)" : None, "Blade Thickness (Rotor)" : None, "Hub Diameter" : None, "Hub Length" : None, "Blade Clearance" : None, "Num of Blade (Rotor)" : None}
-        self.statorExport = {"Duct ID" : None, "Duct Length" : None, "Duct Thickness" : None, "Num of Blade (Stator)" : None, "Mount Can Length" : None, "Mount Can Dia" : None, "Mount Can Loc" : None, "Blade Thickness (Stator)" : None, "Root Chord (Stator)" : None, "Tip Chord (Stator)" : None, "X Twist (Stator)" : None, "Y Twist (Stator)" : None}
-        self.commonExport = {"RPM" : None, "Loading (Psi)" : None, "Flow (Phi)" : None, "Reaction (R)" : None, "Mean Line Radius" : None}
-        
-        for item in self.commonExport:
-            self.commonExport[item] = MainWindow.findChild(QLineEdit, item).text()
-            
-        if obj == "R":
-            for item in self.rotorExport:
-                self.rotorExport[item] = MainWindow.findChild(QLineEdit, item).text()
-        else:
-            for item in self.statorExport:
-                self.statorExport[item] = MainWindow.findChild(QLineEdit, item).text()
-        
-        
-    def checkAllStates(self, obj):
-        if obj == "R": 
-            for dict in [self.commonValidators, self.rotorValidators]:
-                if all(val == 2 for val in dict.values()): self.setExports(obj)
-                else:
-                    for item in dict:
-                        if dict[item] != 2: self.failed.append(item)
-                        else: pass
-                        
-        elif obj == "S":
-            for dict in [self.commonValidators, self.statorValidators]:
-                if all(val == 2 for val in dict.values()): self.setExports(obj)
-                else:
-                    for item in dict:
-                        if dict[item] != 2: self.failed.append(item)
-                        else: pass
-                        
-                        
+                                
+    
+    ################################
+    ##Function: closeEvent
+    #Handles closing of program
+    ##Inputs: 
+    #self: Ui_MainWindow
+    #event: closing event
+    ##Returns:
+    #none
+    ################################   
     def closeEvent(self, event):
         qApp.quit()
         event.ignore()

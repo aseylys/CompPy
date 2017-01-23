@@ -9,11 +9,11 @@ except ImportError:
     
 
 ################################
-#Function: RenderSel
+##Function: RenderSel
 #Render Selection Window
-#Inputs: 
+##Inputs: 
 #parent: parent obj
-#Returns:
+##Returns:
 #self.sel: selection to render
 ################################    
 class RenderSel(QDialog):
@@ -39,12 +39,12 @@ class RenderSel(QDialog):
         self.accept()
         
 ################################
-#Function: ErrorWindow
+##Function: ErrorWindow
 #Error Display Window
-#Inputs: 
+##Inputs: 
 #parent: parent obj
 #errors: (list)
-#Returns:
+##Returns:
 #None
 ################################         
 class ErrorWindow(QDialog):

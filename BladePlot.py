@@ -17,13 +17,13 @@ import numpy as np
 
 
 ################################
-#Function: RenderRotor
+##Function: RenderRotor
 #Generates Tip and Rotor NACA4 Profiles
-#Inputs: 
+##Inputs: 
 #parent: parent (obj)
 #common: common properties (dict)
 #object: stage properties (dict)
-#Returns:
+##Returns:
 #none
 ################################
 class NACA4Profile(QWidget):
@@ -46,7 +46,8 @@ class NACA4Profile(QWidget):
 
          
     def stageCalc(self):
-        if self.stageObj == 'Rotor':
+        if self.stageObj == 'R':
+            self.stageObj = 'Rotor'
             #Create Rotor Object
             self.stageProps = StageCalc(r = self.commonVars['Reaction (R)'], 
                                                     phi = self.commonVars['Flow (Phi)'], 
@@ -70,6 +71,7 @@ class NACA4Profile(QWidget):
             
         else:
             #Create Stator Object
+            self.stageObj = 'Stator'
             self.stageProps = StageCalc(r = self.commonVars['Reaction (R)'], 
                                                     phi = self.commonVars['Flow (Phi)'], 
                                                     psi = self.commonVars['Loading (Psi)'], 
@@ -91,26 +93,26 @@ class NACA4Profile(QWidget):
             self.tipCamber *= -1
             
         
-    def camber_line(self, camber, chord, thickness, cpos):
+    def _camberLine(self, camber, chord, thickness, cpos):
         return np.where((self.x >= 0) & (self.x <= (chord * cpos)),
                         camber * (self.x / np.power(cpos, 2)) * (2.0 * cpos - (self.x / chord)),
                         camber * ((chord - self.x) / np.power(1 - cpos, 2)) * (1.0 + (self.x / chord) - 2.0 * cpos))
           
           
-    def dycdx(self, camber, chord, thickness, cpos):
+    def _dycdx(self, camber, chord, thickness, cpos):
         return np.where((self.x >= 0) & (self.x <= (chord * cpos)),
                         ((2.0 * camber) / np.power(cpos, 2)) * (cpos - self.x / chord),
                         ((2.0 * camber) / np.power(1 - cpos, 2)) * (cpos - self.x / chord))
                      
                      
-    def profThickness(self, camber, chord, thickness, cpos):
+    def _profThickness(self, camber, chord, thickness, cpos):
         return 5 * thickness * chord * ((0.2969 * (np.sqrt(self.x / chord))) + (-0.1260 * (self.x / chord)) + (-0.3516 * np.power(self.x / chord, 2)) + (0.2843 * np.power(self.x /chord, 3)) + (-0.1015 * np.power(self.x / chord, 4)))
     
     
-    def compute(self, camber, chord, thickness, cpos):
-        th = np.arctan(self.dycdx(camber, chord, thickness, cpos))
-        yt = self.profThickness(camber, chord, thickness, cpos)
-        yc = self.camber_line(camber, chord, thickness, cpos)
+    def _compute(self, camber, chord, thickness, cpos):
+        th = np.arctan(self._dycdx(camber, chord, thickness, cpos))
+        yt = self._profThickness(camber, chord, thickness, cpos)
+        yc = self._camberLine(camber, chord, thickness, cpos)
         return ((self.x - yt * np.sin(th), yc + yt * np.cos(th)),
                     (self.x + yt * np.sin(th), yc - yt * np.cos(th)))
              
@@ -122,13 +124,13 @@ class NACA4Profile(QWidget):
         axTip.set_title('Tip Profile')
         
         #Root Blade Shape
-        root = self.compute(camber = self.rootCamber, 
+        root = self._compute(camber = self.rootCamber, 
                                       chord = 1,
                                       thickness = self.stageVars['Blade Thickness ({})'.format(self.stageObj)] / 100,
                                       cpos = 0.35) #Can Be Changed
                                       
         #Tip Blade Shape
-        tip = self.compute(camber = self.tipCamber, 
+        tip = self._compute(camber = self.tipCamber, 
                                    chord = 1,
                                    thickness = self.stageVars['Blade Thickness ({})'.format(self.stageObj)] / 100,
                                    cpos = 0.35) #Can Be Changed
@@ -139,12 +141,12 @@ class NACA4Profile(QWidget):
             axTip.plot(item[0], item[1], 'b')
         
         #Root Camber
-        rootCL = self.camber_line(camber = self.rootCamber, 
+        rootCL = self._camberLine(camber = self.rootCamber, 
                                               chord = 1,
                                               thickness = self.stageVars['Blade Thickness ({})'.format(self.stageObj)] / 100,
                                               cpos = 0.35) #Can Be Changed
         #Tip Camber                                     
-        tipCL = self.camber_line(camber = self.tipCamber, 
+        tipCL = self._camberLine(camber = self.tipCamber, 
                                             chord = 1,
                                             thickness = self.stageVars['Blade Thickness ({})'.format(self.stageObj)] / 100,
                                             cpos = 0.35) #Can Be Changed   
@@ -154,8 +156,6 @@ class NACA4Profile(QWidget):
         axTip.plot(self.x, tipCL, 'r')
         #axTip.axis('equal')
         self.canvas.draw()
-        axRoot.hold(False)
-        axTip.hold(False)
         self.figure.tight_layout()
         
         

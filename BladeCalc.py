@@ -3,8 +3,8 @@ import stl
 
 
 ################################
-#Function: NACA4Blade
-#Inputs:
+##Function: NACA4Blade
+##Inputs:
 #camberRoot: camber of root (float)
 #camberTip: camber of tip (float)
 #camberPos: posistion of maximum camber (float)
@@ -14,7 +14,7 @@ import stl
 #rootChord: chord at root (float)
 #tipChord: chord at tip (float)
 #cot: center of twist coordinates (list)
-#Returns:
+##Returns:
 #(faces, verts): list of faces and list of verts
 ################################
 def NACA4Blade(camberRoot, camberTip, camberPos, thickness,\
@@ -78,16 +78,17 @@ def NACA4Blade(camberRoot, camberTip, camberPos, thickness,\
         for i in range(0, npts):
             xUpTwist[i] = (xUpper[i] * cos(angle) - yUpper[i] * sin(angle)) * chord
             yUpTwist[i] = (xUpper[i] * sin(angle) + yUpper[i] * cos(angle)) * chord
-
             
+            verts.append([xUpTwist[i], yUpTwist[i], j * dspan])
+
+        for i in range(0, npts):
+
             xLowTwist[i] = (xLower[i] * cos(angle) - yLower[i] * sin(angle)) * chord
             yLowTwist[i] = (xLower[i] * sin(angle) + yLower[i] * cos(angle)) * chord
             
-            verts.append([xUpTwist[i], yUpTwist[i], j * dspan])
-            verts.append([xLowTwist[i], yLowTwist[i], j * dspan])
-
             
-    #Generate Faces From Vertices
+            verts.append([xLowTwist[i], yLowTwist[i], j * dspan])
+    
     #Bottom Prof
     faces.append([0, 1, npts + 1])
     for i in range(0, npts - 1):
@@ -112,15 +113,16 @@ def NACA4Blade(camberRoot, camberTip, camberPos, thickness,\
     for i in range(0, npts - 1):
         faces.append([nPerStage * nspan + i, nPerStage * nspan + npts + i + 1, nPerStage * nspan + i + 1])    
         faces.append([nPerStage * nspan + i, nPerStage * nspan + npts + i, nPerStage * nspan + npts + i + 1])  
-
+    
     return (faces, verts)
     
     
 ################################
-#Function: FindBounds
-#Inputs:
+##Function: FindBounds
+#Calculates bounding box for given object
+##Inputs:
 #obj: object to be bounded (mesh)
-#Returns:
+##Returns:
 #minx, maxx, miny, maxy, minz, maxz: (floats)
 ################################
 def FindBounds(obj):
@@ -145,6 +147,14 @@ def FindBounds(obj):
     return minx, maxx, miny, maxy, minz, maxz
 
     
+################################
+##Function: StageProps
+#Holds stage angles
+##Inputs:
+#None
+##Returns:
+#None
+################################
 class StageProps():
     beta1 = 0
     beta2 = 0
@@ -158,7 +168,15 @@ class StageProps():
     phi = 0
     psi = 0
     
-    
+
+################################
+##Function: LinearStageProp
+#Holds stage properties
+##Inputs:
+#None
+##Returns:
+#None
+################################    
 class LinearStageProp():
     rootProps = StageProps()
     meanProps = StageProps()
@@ -166,7 +184,19 @@ class LinearStageProp():
     rootRadius = 0
     tipRadius = 0
     
-    
+ 
+################################
+##Function: CalcStageBladeAngles
+#Calculates stage angles for the blade
+##Inputs:
+#r: reaction (float)
+#phi: flow (float)
+#psi: loading (float)
+#rpm: ...rpm (float)
+#radius: radius of stage (float)
+##Returns:
+#stageProps: stage properties (object)
+################################ 
 def CalcStageBladeAngles(r, phi, psi, rpm, radius):
     u = rpm / 60 * 2 * pi * radius / 1000
     stageProps = StageProps()
@@ -184,7 +214,20 @@ def CalcStageBladeAngles(r, phi, psi, rpm, radius):
     
     return stageProps
     
-    
+
+################################
+##Function: StageCalc
+#Calculates propeties of whole stage
+##Inputs:
+#r: reaction (float)
+#phi: flow (float)
+#psi: loading (float)
+#rpm: ...rpm (float)
+#rootRadius: hub radius of stage (float)
+#tipRadius: radius of stage (float)
+##Returns:
+#stageProps: stage properties (object)
+################################
 def StageCalc(r, phi, psi, rpm, rootRadius, tipRadius):
     stageProps = LinearStageProp()
     stageProps.rootRadius = rootRadius

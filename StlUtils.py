@@ -4,12 +4,14 @@ from BladeCalc import *
 
 
 ################################
-#Function: drawCylinder
-#Inputs:
+##Function: drawCylinder
+#Draws cylinder with specified diamter, height and
+#resolution
+##Inputs:
 #dia: diameter of cylinder
 #height: height of cylinder
 #res: resoltution of shape (num of sides really)
-#Returns:
+##Returns:
 #cylinder: cylinder mesh object
 ################################
 def drawCylinder(dia, height, res = 25):
@@ -61,13 +63,15 @@ def drawCylinder(dia, height, res = 25):
     
 
 ################################
-#Function: drawDuct
-#Inputs:
+##Function: drawDuct
+#Draws hollowed out cylinder with specified
+#inner diamter, thickness, height and resolution
+##Inputs:
 #innerDia: inner diameter
 #thickness: thickness of duct
 #height: height of cylinder
 #res: resoltution of shape (num of sides really)
-#Returns:
+##Returns:
 #duct: duct mesh object
 ################################
 def drawDuct(innerDia, thickness, height, res = 25):
@@ -124,8 +128,9 @@ def drawDuct(innerDia, thickness, height, res = 25):
     
     
 ################################
-#Function: drawBlade
-#Inputs:
+##Function: drawBlade
+#draws individual blade
+##Inputs:
 #camberRoot: camber of root
 #camberTip: camber of tip
 #camberPos: posistion of maximum camber
@@ -135,7 +140,7 @@ def drawDuct(innerDia, thickness, height, res = 25):
 #rootChord: chord at root
 #tipChord: chord at tip
 #cot: center of twist coordinates
-#Returns:
+##Returns:
 #bladeMesh: blade mesh object
 ################################
 def drawBlade(camberRoot, camberTip, camberPos, thickness, bladeHeight, twistAngle, rootChord, tipChord, cot):
@@ -157,7 +162,7 @@ def drawBlade(camberRoot, camberTip, camberPos, thickness, bladeHeight, twistAng
     
     #Generate Blade Mesh
     bladeMesh = mesh.Mesh(np.zeros(bladeFaces.shape[0], dtype=mesh.Mesh.dtype))
-    
+	
     for i, f in enumerate(bladeFaces):
         for j in range(3):
             bladeMesh.vectors[i][j] = bladeVertices[f[j],:]
@@ -165,7 +170,38 @@ def drawBlade(camberRoot, camberTip, camberPos, thickness, bladeHeight, twistAng
     return bladeMesh
 
     
-    
+################################
+##Function: rotationMatrix
+#Generates rotational matrix, 
+#NOT USED, but helpful when necessary
+##Inputs:
+#axis: axis to be rotated about (array)
+#theta: angle to rotate (float)
+##Returns:
+#rotation matrix (array)
+################################
+def rotationMatrix(axis, theta):
+    axis = np.asarray(axis)
+    # No need to rotate if there is no actual rotation
+    if not axis.any():
+        return np.zeros((3, 3))
+
+    theta = 0.5 * np.asarray(theta)
+
+    axis = axis / np.linalg.norm(axis)
+
+    a = np.cos(theta)
+    b, c, d = - axis * np.sin(theta)
+    angles = a, b, c, d
+    powers = [x * y for x in angles for y in angles]
+    aa, ab, ac, ad = powers[0:4]
+    ba, bb, bc, bd = powers[4:8]
+    ca, cb, cc, cd = powers[8:12]
+    da, db, dc, dd = powers[12:16]
+
+    return np.array([[aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
+                        [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
+                        [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]])
     
 ###USED FOR QUICK TESTING
     

@@ -19,13 +19,13 @@ import numpy as np
 
 
 ################################
-#Function: RenderRotor
+##Function: RenderRotor
 #Builds and Renders Rotor Object
-#Inputs: 
+##Inputs: 
 #parent: parent (obj)
 #common: common properties (dict)
 #object: rotor properties (dict)
-#Returns:
+##Returns:
 #self.rotorHub: completed rotor obj to be exported
 ################################
 class RenderRotor(QWidget):
@@ -82,26 +82,37 @@ class RenderRotor(QWidget):
         #Move it Back to Center
         self.rotorHub.x += (hmaxz - hminz) / 2
         
+        rootAngle = np.rad2deg(avgBetaRoot)
+        
+        #Two different blade heights
+        #Relative is for posistioning, to make sure some of the blade is within the rotor hub
+        #It's the blade height that's exposed
+        relativeBladeHeight = (self.rotorVars['Rotor Diameter'] / 2 - self.rotorVars['Hub Diameter'] / 2)
+        #Actual height is the actual length of the blade that is created, not all is exposed
+        actualBladeHeight = (self.rotorVars['Rotor Diameter'] / 1.7 - self.rotorVars['Hub Diameter'] / 2) / np.cos(np.deg2rad(rootAngle))
+        
         #Generate Blades
         self.blades = []
         for i in range(int(self.rotorVars['Num of Blade (Rotor)'])):
             blade = drawBlade(camberRoot = rootCamber, 
                                     camberTip = tipCamber, 
-                                    camberPos = .35, #Can Be Changed
+                                    camberPos = 0.35, #Can Be Changed
                                     thickness = self.rotorVars['Blade Thickness (Rotor)'] / 100, 
-                                    bladeHeight = self.rotorVars['Rotor Diameter'] / 2 - self.rotorVars['Hub Diameter'] / 2, 
+                                    bladeHeight = actualBladeHeight, 
                                     twistAngle = np.rad2deg(avgBetaRoot - avgBetaTip), 
                                     rootChord = self.rotorVars['Root Chord (Rotor)'], 
                                     tipChord = self.rotorVars['Tip Chord (Rotor)'], 
                                     cot = [self.rotorVars['X Twist (Rotor)'], self.rotorVars['Y Twist (Rotor)']])
-            #Get Bounds for That Blade
-            minx, maxx, miny, maxy, minz, maxz = FindBounds(blade)
-            rootAngle = np.rad2deg(avgBetaRoot)
+
+            #Not used, but just in case, the rotation matrix
+            #R = rotationMatrix((0, 0, 1), np.deg2rad(rootAngle))
+
             #Rotate, Move, and Rotate the Blade
             blade.rotate([0, 0, 1], np.deg2rad(-rootAngle))
-            blade.y += ((hmaxx - hminx)) / 4
-            blade.z += ((hmaxy - hminy)) / 4
+            blade.y += (((hmaxx - hminx)) / 2) - (relativeBladeHeight / 2)
+            blade.z += (((hmaxy - hminy)) / 2) - (relativeBladeHeight / 2)
             blade.rotate([1, 0, 0], np.deg2rad(rootAngle + ((360 / 10) * i)))
+            
             self.blades.append(blade)       
         
         #Create a Combined Mesh of All Objects
@@ -115,6 +126,12 @@ class RenderRotor(QWidget):
             endWall.rotate([0, 1, 0], np.deg2rad(90))
             endWall.x += (hmaxz - hminz) / 2
             self.rotorHub = mesh.Mesh(np.concatenate([self.rotorHub.data, endWall.data]))
+        
+        tminx, tmaxx, tminy, tmaxy, tminz, tmaxz = FindBounds(self.rotorHub)
+        
+        #print(tmaxz - tminz)
+        #print(tmaxx - tminx)
+        #print(tmaxy - tminy)
         
         #Render That Shiz
         self.render()
@@ -148,13 +165,13 @@ class RenderRotor(QWidget):
         return self.rotorHub
         
 ################################
-#Function: RenderStator
+##Function: RenderStator
 #Builds and Renders Stator Object
-#Inputs: 
+##Inputs: 
 #parent: parent (obj)
 #common: common properties (dict)
 #object: stator properties (dict)
-#Returns:
+##Returns:
 #self.statorHub: completed stator obj to be exported
 ################################
 class RenderStator(QWidget):
@@ -219,7 +236,14 @@ class RenderStator(QWidget):
         duct.x += ((hmaxz - hminz) / 2)
         
         rootAngle = np.rad2deg(avgBetaRoot)
-
+        
+        #Two different blade heights
+        #Relative is for posistioning, to make sure some of the blade is within the rotor hub
+        #It's the blade height that's exposed
+        relativeBladeHeight = (self.statorVars['Duct ID'] / 2 - self.statorVars['Mount Can Dia'] / 2)
+        #Actual height is the actual length of the blade that is created, not all is exposed
+        actualBladeHeight = (self.statorVars['Duct ID'] / 1.7 - self.statorVars['Mount Can Dia'] / 2) / np.cos(np.deg2rad(rootAngle))
+        
         #Generate Blades
         blades = []
         for i in range(int(self.statorVars['Num of Blade (Stator)'])):
@@ -227,7 +251,7 @@ class RenderStator(QWidget):
                                     camberTip = tipCamber, 
                                     camberPos = .35, #Can Be Changed
                                     thickness = self.statorVars['Blade Thickness (Stator)'] / 100, 
-                                    bladeHeight = self.statorVars['Duct ID'] / 1.5 - self.statorVars['Mount Can Dia'] / 2, 
+                                    bladeHeight = actualBladeHeight, 
                                     twistAngle = np.rad2deg(avgBetaRoot - avgBetaTip), 
                                     rootChord = self.statorVars['Root Chord (Stator)'], 
                                     tipChord = self.statorVars['Tip Chord (Stator)'], 
@@ -238,8 +262,8 @@ class RenderStator(QWidget):
             
             #Rotate, Move, and Rotate the Blade
             blade.rotate([0, 0, 1], np.deg2rad(-rootAngle))
-            blade.y += ((hmaxx - hminx)) / 4
-            blade.z += ((hmaxy - hminy)) / 4
+            blade.y += (((hmaxx - hminx)) / 2) - (relativeBladeHeight / 2)
+            blade.z += (((hmaxy - hminy)) / 2) - (relativeBladeHeight / 2)
             blade.rotate([1, 0, 0], np.deg2rad(rootAngle + ((360 / 10) * i)))
             
             #Move to Specified Location
