@@ -38,7 +38,7 @@ class RenderRotor(QWidget):
         layout = QVBoxLayout()
         layout.addWidget(self.canvas)
         self.setLayout(layout)
-        
+       
         #Change Strings to Floats in Dicts
         self.commonVars = {k : float(v) for k, v in common.items()}
         self.rotorVars = {k : float(v) for k, v in object.items()}

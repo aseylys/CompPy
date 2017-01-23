@@ -778,7 +778,7 @@ class Ui_MainWindow(object):
         #Open save file dialog window
         name = QFileDialog.getSaveFileName(MainWindow, "Save File", None, 'Json files (*.json)')
         
-        #make sure the current stage is saved to the dictionaries
+        #Make sure the current stage is saved to the dictionaries
         for dict in [self.commonVars[self.clicked], self.rotorVars[self.clicked], self.statorVars[self.clicked]]:
             for item in dict:
                 text = MainWindow.findChild(QLineEdit, item).text()
@@ -967,6 +967,13 @@ class Ui_MainWindow(object):
         #Delete Currently Occupating Widget
         for i in reversed(range(self.R_FrameLayout.count())): self.R_FrameLayout.itemAt(i).widget().setParent(None)
         
+        #Make sure the current stage is saved to the dictionaries
+        for dict in [self.commonVars[self.clicked], self.rotorVars[self.clicked], self.statorVars[self.clicked]]:
+            for item in dict:
+                text = MainWindow.findChild(QLineEdit, item).text()
+                if text:
+                    dict[item] = text
+        
         wind = RenderSel(MainWindow)
         wind.show()
         
@@ -1020,9 +1027,20 @@ class Ui_MainWindow(object):
         #Delete Currently Occupating Widget
         for i in reversed(range(self.R_FrameLayout.count())): self.R_FrameLayout.itemAt(i).widget().setParent(None)
         
+        #Make sure the current stage is saved to the dictionaries
+        for dict in [self.commonVars[self.clicked], self.rotorVars[self.clicked], self.statorVars[self.clicked]]:
+            for item in dict:
+                text = MainWindow.findChild(QLineEdit, item).text()
+                if text:
+                    dict[item] = text
+                    
         #Display selction window
         wind = RenderSel(MainWindow)
         wind.show()
+        
+        #Make sure self.clicked has a value
+        if self.clicked: pass
+        else: self.clicked = 0
         
         #Once window is closed
         if wind.exec_():
